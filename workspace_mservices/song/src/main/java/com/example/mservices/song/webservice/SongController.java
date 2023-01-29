@@ -22,6 +22,12 @@ public class SongController {
         return songService.getAllSongs();
     }
 
+    @GetMapping("/{id}")
+    Song getSong(@PathVariable Long id) {
+        return songService.getSong(id)
+                .orElseThrow(() -> new SongNotFoundException(id));
+    }
+
     @PostMapping
     public ResponseEntity<Song> addSong(@RequestBody Song song) {
         Song newSong = songService.addSong(song);
@@ -29,5 +35,15 @@ public class SongController {
             return new ResponseEntity(newSong, HttpStatus.CREATED);
         }
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
+    }
+
+    @PutMapping("/{id}")
+    Song updateSong(@RequestBody Song newSong, @PathVariable Long id) {
+        return songService.updateSong(id, newSong);
+    }
+
+    @DeleteMapping("/{ids}")
+    void deleteEmployee(@PathVariable String ids) {
+        //TODO
     }
 }
