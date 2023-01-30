@@ -34,6 +34,8 @@ public class SongController {
         if (newSong != null) {
             return new ResponseEntity(newSong, HttpStatus.CREATED);
         }
+        //TODO response JSON
+        //TODO return codes
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 

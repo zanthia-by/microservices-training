@@ -10,3 +10,13 @@ services:
       - POSTGRES_DB=postgres
     ports:
       - '5432:5432'
+  pg-resource:
+    container_name: pg-resource
+    image: postgres
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres 
