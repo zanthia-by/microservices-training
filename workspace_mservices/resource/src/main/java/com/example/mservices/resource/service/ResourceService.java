@@ -86,6 +86,7 @@ public class ResourceService {
             amazonS3Service.delete(resourceEntity.getBucketName(), resourceEntity.getObjectKey());
             resourceRepository.delete(resourceEntity);
         }
+        deletedIds.sort(Comparator.naturalOrder());
         return deletedIds;
     }
 }

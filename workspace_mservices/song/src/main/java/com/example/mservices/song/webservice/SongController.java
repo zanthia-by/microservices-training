@@ -6,7 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("songs")
@@ -29,14 +32,11 @@ public class SongController {
     }
 
     @PostMapping
-    public ResponseEntity<Song> addSong(@RequestBody Song song) {
+    public ResponseEntity<Map<String, Object>> addSong(@RequestBody Song song) {
         Song newSong = songService.addSong(song);
-        if (newSong != null) {
-            return new ResponseEntity(newSong, HttpStatus.CREATED);
-        }
-        //TODO response JSON
-        //TODO return codes
-        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("id", newSong.getId());
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
@@ -44,8 +44,23 @@ public class SongController {
         return songService.updateSong(id, newSong);
     }
 
-    @DeleteMapping("/{ids}")
-    void deleteEmployee(@PathVariable String ids) {
-        //TODO
+    @DeleteMapping()
+    ResponseEntity<?> deleteSong(@RequestParam("id") String ids) {
+        if (ids.length() >= 200) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build();
+        }
+
+        var listOfIds = Stream.of(ids.split(","))
+                .map(Long::parseLong)
+                .toList();
+        var deletedIds = songService.delete(listOfIds);
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("ids", deletedIds);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
     }
 }

@@ -2,8 +2,11 @@ package com.example.mservices.song.service;
 
 import com.example.mservices.song.data.SongEntity;
 import com.example.mservices.song.data.SongRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,15 +30,21 @@ public class SongService {
     }
 
     public Song addSong(Song song) {
+        validate(song);
         var entity = toEntity(song);
         var newEntity = songRepository.save(entity);
         return toSong(newEntity);
     }
 
+    private void validate(Song song) {
+        if (StringUtils.isBlank(song.getName())
+                || StringUtils.isBlank(song.getArtist()))
+            throw new SongInvalidMetadataException();
+    }
 
     public Song updateSong(Long id, Song newSong) {
         var found = songRepository.findById(id);
-        if (!found.isEmpty()) {
+        if (found.isPresent()) {
             var entity = found.get();
             fillEntity(entity, newSong);
             songRepository.save(entity);
@@ -75,4 +84,17 @@ public class SongService {
         entity.setYear(song.getYear());
     }
 
+    public List<Long> delete(List<Long> ids) {
+        List<Long> deletedIds = new ArrayList<>();
+        for (long id : ids) {
+            var songEntity = songRepository.findById(id).orElse(null);
+            if (songEntity == null) {
+                continue;
+            }
+            deletedIds.add(songEntity.getId());
+            songRepository.delete(songEntity);
+        }
+        deletedIds.sort(Comparator.naturalOrder());
+        return deletedIds;
+    }
 }
